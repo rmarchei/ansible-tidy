@@ -20,7 +20,7 @@ New in version: 1.7
 <td></td>
 <td><ul></ul></td>
 <td>Tidy files whose age is equal to or greater than the specified time.  
-You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’).Specifying 0 will remove all files.</td>
+You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’). Specifying 0 will remove all files.</td>
 </tr>
 <tr>
 <td>matches</td>
