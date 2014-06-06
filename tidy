@@ -206,7 +206,7 @@ def main():
                         files_to_delete.append(fsname)
             if not params['recurse']: 
                 break
-    else:
+    elif os.path.isfile(params['path']):
         fsobj = os.path.basename(params['path'])
         fsname = os.path.normpath(params['path'])
         if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and sizefilter(fsname, size):
