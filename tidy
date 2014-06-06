@@ -235,10 +235,10 @@ def main():
     for d in dirs_to_delete:
         if os.path.exists(d):
             try:
-                    if params['force']:
-                        shutil.rmtree(d)
-                    else:
-                        os.rmdir(d)
+                if params['force']:
+                    shutil.rmtree(d)
+                else:
+                    os.rmdir(d)
             except Exception, e:
                 if e.errno == errno.ENOTEMPTY:
                     continue
