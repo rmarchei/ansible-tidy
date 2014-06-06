@@ -197,7 +197,7 @@ def main():
     if os.path.isdir(params['path']):
         for root,dirs,files in os.walk( params['path'] ):
             for fsobj in dirs + files:
-                fsname=os.path.join(root, fsobj)
+                fsname=os.path.normpath(os.path.join(root, fsobj))
                 if os.path.isdir(fsname):
                     if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and params['rmdirs']:
                         dirs_to_delete.append(fsname)
