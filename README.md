@@ -88,7 +88,7 @@ Unqualified values are in bytes, but b, k, m, g, and t can be appended to specif
 # Recursively delete on /var/tmp files and empty directories with last access time greater than 3600 seconds
 - tidy: path="/var/tmp" age="3600" ts=atime rmdirs=yes recurse=yes
 
-# Delete on /var/log files files equal or greater than 10 megabytes ending with .log
+# Delete on /var/log files equal or greater than 10 megabytes ending with .log
 - tidy: path="/var/tmp" matches="*.log","*.log.gz" size="10m"
 ```
 
