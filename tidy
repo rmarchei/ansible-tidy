@@ -33,6 +33,12 @@ options:
         description:
             - Tidy files whose age is equal to or greater than the specified time. 
             You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’). Specifying 0 will remove all files.
+    force:
+        required: false
+        default: "no"
+        choices: [ "yes", "no" ]
+        description:
+            - Force removal of non empty directories.
     matches:
         required: false
         description:
@@ -95,6 +101,7 @@ import os
 import fnmatch
 import time
 import re
+import shutil
 
 def to_seconds(age):
     '''convert to seconds'''
@@ -166,6 +173,7 @@ def main():
             argument_spec = dict(
                 path=dict(required=True, aliases=['name'], type='str'),
                 age=dict(default=0, type='str'),
+                force=dict(default='no', type='bool'),
                 matches=dict(default=None, type='list'),
                 recurse=dict(default='no', type='bool'),
                 rmdirs=dict(default='no', type='bool'),
@@ -203,7 +211,7 @@ def main():
                 break
     
     files_to_delete.sort()
-    dirs_to_delete.sort(reverse=True)
+    dirs_to_delete.sort(reverse=not params['force'])
     
     if module.check_mode == True:
         if len(files_to_delete) > 0 or len(dirs_to_delete) > 0:
@@ -222,11 +230,15 @@ def main():
             continue
         deleted_files.append(f)
     for d in dirs_to_delete:
-        try:
-            os.rmdir(d)
-        except Exception, e:
-            continue
-        deleted_dirs.append(d)
+        if os.path.exists(d):
+            try:
+                    if params['force']:
+                        shutil.rmtree(d)
+                    else:
+                        os.rmdir(d)
+            except Exception, e:
+                continue
+            deleted_dirs.append(d)
             
     if len(files) > 0 or len(dirs) > 0:
         changed = True

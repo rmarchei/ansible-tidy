@@ -23,6 +23,13 @@ New in version: 1.7
 You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’). Specifying 0 will remove all files.</td>
 </tr>
 <tr>
+<td>force</td>
+<td>no</td>
+<td></td>
+<td><ul><li>yes</li><li>no</li></ul></td>
+<td>Force removal of non empty directories</td>
+</tr>
+<tr>
 <td>matches</td>
 <td>yes</td>
 <td></td>
