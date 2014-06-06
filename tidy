@@ -102,6 +102,7 @@ import fnmatch
 import time
 import re
 import shutil
+import errno
 
 def to_seconds(age):
     '''convert to seconds'''
@@ -227,9 +228,9 @@ def main():
         try:
             os.remove(f)
         except Exception, e:
-            if not params['silent']:
-                module.fail_json(deleted_files=deleted_files, path=f, msg="failed to remove file: %s " % str(e))
-            continue
+            if params['silent']:
+                continue
+            module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=f, msg="failed to remove file: %s " % str(e))
         deleted_files.append(f)
     for d in dirs_to_delete:
         if os.path.exists(d):
@@ -239,7 +240,12 @@ def main():
                     else:
                         os.rmdir(d)
             except Exception, e:
-                continue
+                if e.errno == errno.ENOTEMPTY:
+                    continue
+                else:
+                    if params['silent']:
+                        continue
+                    module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=d, msg="failed to remove directory: %s " % str(e))
             deleted_dirs.append(d)
             
     if len(files) > 0 or len(dirs) > 0:
