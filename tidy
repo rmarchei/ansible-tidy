@@ -1,0 +1,238 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# (c) 2014, Ruggero Marchei <ruggero.marchei@daemonzone.net>
+#
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>
+
+DOCUMENTATION = '''
+---
+module: tidy
+author: Ruggero Marchei
+version_added: "1.7"
+short_description: Remove unwanted files based on specific criteria
+requirements: []
+description:
+    - Remove unwanted files based on specific criteria. Multiple criteria are AND’d together. 
+options:
+    age:
+        required: false
+        description:
+            - Tidy files whose age is equal to or greater than the specified time. 
+            You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’).Specifying 0 will remove all files.
+    matches:
+        required: false
+        description:
+            - One or more (shell type) file glob patterns, which restrict the list of files to be tidied to those whose basenames match at least one of the patterns specified.
+            Multiple patterns can be specified using a list.
+    path:
+        required: true
+        aliases: [ "name" ]
+        description:
+            - Path to the file or directory to manage. Must be fully qualified.
+    recurse:
+        required: false
+        default: "no"
+        choices: [ "yes", "no" ]
+        description:
+            - If target is a directory, recursively descend into the directory looking for files to tidy.
+    rmdirs:
+        required: false
+        default: "no"
+        choices: [ "yes", "no" ]
+        description:
+            - Tidy directories in addition to files; that is, remove directories whose age is older than the specified criteria. 
+            This will only remove empty directories, so all contained files must also be tidied before a directory gets removed.
+    silent:
+        required: false
+        default: "no"
+        choices: [ "yes", "no" ]
+        description:
+            - Silently ignore failed commands.
+    size:
+        required: false
+        description:
+            - Tidy files whose size is equal to or greater than the specified size. 
+            Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.
+    ts:
+        required: false
+        default: "atime"
+        choices: [ "atime", "mtime", "ctime ]
+        description:
+            - Set the mechanism for determining age. Default: atime.
+'''
+
+
+EXAMPLES = '''
+# Recursively delete on /tmp files older than 4 weeks
+- tidy: path="/tmp" age="4w" recurse=yes
+
+# Recursively delete on /tmp files older than 3600 seconds and equal or greater than 1 megabyte
+- tidy: path="/tmp" age="4w" size="1m" recurse=yes
+
+# Recursively delete on /var/tmp files and empty directories with last access time greater than 3600 seconds
+- tidy: path="/var/tmp" age="3600" ts=atime rmdirs=yes recurse=yes
+
+# Delete on /var/log files files equal or greater than 10 megabytes ending with .log
+- tidy: path="/var/tmp" matches="*.log","*.log.gz" size="10m"
+'''
+
+
+import os
+import fnmatch
+import time
+import re
+
+def to_seconds(age):
+    '''convert to seconds'''
+    m = re.match("^(\d+)(s|m|h|d|w)?$",str(age))
+    seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+    if m:
+        if m.group(2):
+            return int(m.group(1)) * seconds_per_unit[m.group(2)]
+        return int(m.group(1))
+    else:
+        return None
+
+def to_bytes(size):
+    '''convert to bytes'''
+    m = re.match("^(\d+)(b|k|m|g|t)?$",str(size))
+    bytes_per_unit = {"b": 1, "k": 1024, "m": 1024**2, "g": 1024**3, "t": 1024**4}
+    if m:
+        if m.group(2):
+            return int(m.group(1)) * bytes_per_unit[m.group(2)]
+        return int(m.group(1))
+    else:
+        return None
+
+def pfilter(f, pattern=None):
+    '''filter using glob patterns'''
+    if pattern is None:
+        return True
+    for p in pattern:
+        if fnmatch.fnmatch(f, p):
+             return True
+    return False
+    
+    
+def agefilter(path, age=0, t="atime"):
+    '''filter files older than age'''
+    r = False
+    if age in [None, 0]:
+        return True
+    try:
+        if t == "atime":
+            if time.time() - os.path.getatime(path) >= age:
+                r = True
+        elif t == "ctime":
+            if time.time() - os.path.getctime(path) >= age:
+                r = True       
+        elif t == "mtime":
+            if time.time() - os.path.getmtime(path) >= age:
+                r = True
+    except:
+        pass 
+    return r
+        
+
+def sizefilter(path, size=None):
+    '''filter files greater than size'''
+    r = False
+    if size is None:
+        return True
+    try:
+        if os.path.getsize(path) >= size:
+            r = True
+    except:
+        pass
+    return r
+
+                        
+def main():
+    module = AnsibleModule(
+            argument_spec = dict(
+                path=dict(required=True, aliases=['name'], type='str'),
+                age=dict(default=0, type='str'),
+                matches=dict(default=None, type='list'),
+                recurse=dict(default='no', type='bool'),
+                rmdirs=dict(default='no', type='bool'),
+                size=dict(default=None, type='str'),
+                ts=dict(default="atime", choices=['atime','mtime','ctime'], type='str'),
+                silent=dict(default='no', type='bool')
+            ),
+            supports_check_mode=True
+    )
+
+    params = module.params
+    
+    age = to_seconds(params['age'])
+    size = to_bytes(params['size'])
+    
+    files_to_delete = []
+    dirs_to_delete = []
+    
+    changed = False
+    
+    if os.path.isdir(params['path']):
+        for root,dirs,files in os.walk( params['path'] ):
+            for fsobj in dirs + files:
+                fsname=os.path.join(root, fsobj)
+                if os.path.islink(fsname):
+                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']):
+                        files_to_delete.append(fsname)
+                elif os.path.isfile(fsname):
+                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and sizefilter(fsname, size):
+                        files_to_delete.append(fsname)
+                elif os.path.isdir(fsname):
+                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and params['rmdirs']:
+                        dirs_to_delete.append(fsname)
+            if not params['recurse']: 
+                break
+    
+    files_to_delete.sort()
+    dirs_to_delete.sort(reverse=True)
+    
+    if module.check_mode == True:
+        if len(files_to_delete) > 0 or len(dirs_to_delete) > 0:
+            changed = True
+        module.exit_json(deleted_files=files_to_delete, deleted_dirs=dirs_to_delete, changed=changed)
+                 
+    deleted_files = []
+    deleted_dirs = []
+    
+    for f in files_to_delete:
+        try:
+            os.remove(f)
+        except Exception, e:
+            if not params['silent']:
+                module.fail_json(deleted_files=deleted_files, path=f, msg="failed to remove file: %s " % str(e))
+            continue
+        deleted_files.append(f)
+    for d in dirs_to_delete:
+        try:
+            os.rmdir(d)
+        except Exception, e:
+            continue
+        deleted_dirs.append(d)
+            
+    if len(files) > 0 or len(dirs) > 0:
+        changed = True
+    module.exit_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, changed=changed)
+                        
+# import module snippets
+from ansible.module_utils.basic import *
+main()
+
