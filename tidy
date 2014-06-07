@@ -106,7 +106,7 @@ import errno
 
 def to_seconds(age):
     '''convert to seconds'''
-    m = re.match("^(\d+)(s|m|h|d|w)?$",str(age))
+    m = re.match("^(\d+)(s|m|h|d|w)?$",str(age).lower())
     seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
     if m:
         if m.group(2):
@@ -117,7 +117,7 @@ def to_seconds(age):
 
 def to_bytes(size):
     '''convert to bytes'''
-    m = re.match("^(\d+)(b|k|m|g|t)?$",str(size))
+    m = re.match("^(\d+)(b|k|m|g|t)?$",str(size).lower())
     bytes_per_unit = {"b": 1, "k": 1024, "m": 1024**2, "g": 1024**3, "t": 1024**4}
     if m:
         if m.group(2):
