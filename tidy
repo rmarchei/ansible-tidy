@@ -164,18 +164,18 @@ def sizefilter(path, size=None):
                         
 def main():
     module = AnsibleModule(
-            argument_spec = dict(
-                path=dict(required=True, aliases=['name'], type='str'),
-                age=dict(default=0, type='str'),
-                force=dict(default='no', type='bool'),
-                matches=dict(default=None, type='list'),
-                recurse=dict(default='no', type='bool'),
-                rmdirs=dict(default='no', type='bool'),
-                size=dict(default=None, type='str'),
-                timestamp=dict(default="atime", choices=['atime','mtime','ctime'], type='str'),
-                silent=dict(default='no', type='bool')
+            argument_spec   = dict(
+                path        = dict(required=True, aliases=['name'], type='str'),
+                age         = dict(default=0, type='str'),
+                force       = dict(default='no', type='bool'),
+                matches     = dict(default=None, type='list'),
+                recurse     = dict(default='no', type='bool'),
+                rmdirs      = dict(default='no', type='bool'),
+                size        = dict(default=0, type='str'),
+                timestamp   = dict(default="atime", choices=['atime','mtime','ctime'], type='str'),
+                silent      = dict(default='no', type='bool')
             ),
-            supports_check_mode=True
+            supports_check_mode = True
     )
 
     params = module.params
