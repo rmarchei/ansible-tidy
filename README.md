@@ -74,7 +74,7 @@ Multiple patterns can be specified using a list.</td>
 Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.</td>
 </tr>
 <tr>
-<td>ts</td>
+<td>timestamp</td>
 <td>no</td>
 <td>atime</td>
 <td><ul><li>atime</li><li>mtime</li><li>ctime</li></ul></td>
@@ -93,7 +93,7 @@ Unqualified values are in bytes, but b, k, m, g, and t can be appended to specif
 - tidy: path="/tmp" age="4w" size="1m" recurse=yes
 
 # Recursively delete on /var/tmp files and empty directories with last access time greater than 3600 seconds
-- tidy: path="/var/tmp" age="3600" ts=atime rmdirs=yes recurse=yes
+- tidy: path="/var/tmp" age="3600" timestamp=atime rmdirs=yes recurse=yes
 
 # Delete on /var/log files equal or greater than 10 megabytes ending with .log or .log.gz
 - tidy: path="/var/tmp" matches="*.log","*.log.gz" size="10m"

@@ -73,7 +73,7 @@ options:
         description:
             - Tidy files whose size is equal to or greater than the specified size. 
             Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.
-    ts:
+    timestamp:
         required: false
         default: "atime"
         choices: [ "atime", "mtime", "ctime ]
@@ -90,7 +90,7 @@ EXAMPLES = '''
 - tidy: path="/tmp" age="4w" size="1m" recurse=yes
 
 # Recursively delete on /var/tmp files and empty directories with last access time greater than 3600 seconds
-- tidy: path="/var/tmp" age="3600" ts=atime rmdirs=yes recurse=yes
+- tidy: path="/var/tmp" age="3600" timestamp=atime rmdirs=yes recurse=yes
 
 # Delete on /var/log files equal or greater than 10 megabytes ending with .log or .log.gz
 - tidy: path="/var/tmp" matches="*.log","*.log.gz" size="10m"
@@ -179,7 +179,7 @@ def main():
                 recurse=dict(default='no', type='bool'),
                 rmdirs=dict(default='no', type='bool'),
                 size=dict(default=None, type='str'),
-                ts=dict(default="atime", choices=['atime','mtime','ctime'], type='str'),
+                timestamp=dict(default="atime", choices=['atime','mtime','ctime'], type='str'),
                 silent=dict(default='no', type='bool')
             ),
             supports_check_mode=True
@@ -200,17 +200,17 @@ def main():
             for fsobj in dirs + files:
                 fsname=os.path.normpath(os.path.join(root, fsobj))
                 if os.path.isdir(fsname):
-                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and params['rmdirs']:
+                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['timestamp']) and params['rmdirs']:
                         dirs_to_delete.append(fsname)
                 elif os.path.isfile(fsname):
-                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and sizefilter(fsname, size):
+                    if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['timestamp']) and sizefilter(fsname, size):
                         files_to_delete.append(fsname)
             if not params['recurse']: 
                 break
     elif os.path.isfile(params['path']):
         fsobj = os.path.basename(params['path'])
         fsname = os.path.normpath(params['path'])
-        if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['ts']) and sizefilter(fsname, size):
+        if pfilter(fsobj, params['matches']) and agefilter(fsname, age, params['timestamp']) and sizefilter(fsname, size):
             files_to_delete.append(fsname)
     
     files_to_delete.sort()
