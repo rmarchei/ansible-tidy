@@ -212,7 +212,10 @@ def main():
         if os.path.exists(d):
             try:
                 if params['force'] or len(os.listdir(d)) == 0:
-                    shutil.rmtree(d)
+                    if os.path.islink(d):
+                        os.remove(d)
+                    else:
+                        shutil.rmtree(d)
                     deleted_dirs.append(d)
             except Exception, e:
                 if params['silent']:
