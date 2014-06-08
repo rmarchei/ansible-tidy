@@ -203,11 +203,12 @@ def main():
     for f in files_to_delete:
         try:
             os.remove(f)
+            deleted_files.append(f)
         except Exception, e:
             if params['silent']:
                 continue
             module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=f, msg="failed to process file: %s " % str(e))
-        deleted_files.append(f)
+
     for d in dirs_to_delete:
         if os.path.exists(d):
             try:
