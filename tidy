@@ -156,18 +156,18 @@ def main():
     
     # convert age to seconds:
     m = re.match("^(\d+)(s|m|h|d|w)?$", params['age'].lower())
-    seconds_per_unit = {None: 1, "s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+    seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
     if m:
-        age = int(m.group(1)) * seconds_per_unit[m.group(2)]
+        age = int(m.group(1)) * seconds_per_unit.get(m.group(2), 1)
     else:
         module.fail_json(age=params['age'], msg="failed to process age")
         
     
     # convert size to bytes:
     m = re.match("^(\d+)(b|k|m|g|t)?$", params['size'].lower())
-    bytes_per_unit = {None: 1, "b": 1, "k": 1024, "m": 1024**2, "g": 1024**3, "t": 1024**4}
+    bytes_per_unit = {"b": 1, "k": 1024, "m": 1024**2, "g": 1024**3, "t": 1024**4}
     if m:
-        size = int(m.group(1)) * bytes_per_unit[m.group(2)]
+        size = int(m.group(1)) * bytes_per_unit.get(m.group(2), 1)
     else:
         module.fail_json(size=params['size'], msg="failed to process size")
     
