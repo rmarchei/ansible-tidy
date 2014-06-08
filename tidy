@@ -118,28 +118,16 @@ def pfilter(f, pattern=None):
     
 def agefilter(path, age=0, timestamp="atime"):
     '''filter files older than age'''
-    if age == 0:
+    if age == 0 or time.time() - os.stat(path).__getattribute__("st_%s" % timestamp) >= age:
         return True
-    if timestamp in ("atime", "ctime", "mtime"):
-        try:
-            if time.time() - os.stat(path).__getattribute__("st_%s" % timestamp) >= age:
-                return True
-        except:
-            pass 
     return False
         
 
 def sizefilter(path, size=0):
     '''filter files greater than size'''
-    r = False
-    if size == 0:
+    if size == 0 or os.stat(path).st_size >= size:
         return True
-    try:
-        if os.path.getsize(path) >= size:
-            r = True
-    except:
-        pass
-    return r
+    return False
 
                         
 def main():
