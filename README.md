@@ -71,7 +71,8 @@ Multiple patterns can be specified using a list.</td>
 <td></td>
 <td><ul></ul></td>
 <td>Tidy files whose size is equal to or greater than the specified size.  
-Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.</td>
+Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.  
+Size is not evaluated for directories.</td>
 </tr>
 <tr>
 <td>timestamp</td>
