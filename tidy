@@ -225,7 +225,7 @@ def main():
                     module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=d, msg="failed to remove directory: %s " % str(e))
             deleted_dirs.append(d)
             
-    if len(files) > 0 or len(dirs) > 0:
+    if len(deleted_files) > 0 or len(deleted_dirs) > 0:
         changed = True
     module.exit_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, changed=changed)
                         
