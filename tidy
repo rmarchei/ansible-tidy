@@ -104,27 +104,7 @@ import re
 import shutil
 import errno
 
-def to_seconds(age):
-    '''convert to seconds'''
-    m = re.match("^(\d+)(s|m|h|d|w)?$",str(age).lower())
-    seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
-    if m:
-        if m.group(2):
-            return int(m.group(1)) * seconds_per_unit[m.group(2)]
-        return int(m.group(1))
-    else:
-        return None
 
-def to_bytes(size):
-    '''convert to bytes'''
-    m = re.match("^(\d+)(b|k|m|g|t)?$",str(size).lower())
-    bytes_per_unit = {"b": 1, "k": 1024, "m": 1024**2, "g": 1024**3, "t": 1024**4}
-    if m:
-        if m.group(2):
-            return int(m.group(1)) * bytes_per_unit[m.group(2)]
-        return int(m.group(1))
-    else:
-        return None
 
 def pfilter(f, pattern=None):
     '''filter using glob patterns'''
@@ -138,7 +118,7 @@ def pfilter(f, pattern=None):
     
 def agefilter(path, age=0, timestamp="atime"):
     '''filter files older than age'''
-    if age in [None, 0]:
+    if age == 0:
         return True
     if timestamp in ("atime", "ctime", "mtime"):
         try:
@@ -149,10 +129,10 @@ def agefilter(path, age=0, timestamp="atime"):
     return False
         
 
-def sizefilter(path, size=None):
+def sizefilter(path, size=0):
     '''filter files greater than size'''
     r = False
-    if size is None:
+    if size == 0:
         return True
     try:
         if os.path.getsize(path) >= size:
@@ -179,14 +159,29 @@ def main():
     )
 
     params = module.params
-    
-    age = to_seconds(params['age'])
-    size = to_bytes(params['size'])
-    
+        
     files_to_delete = []
     dirs_to_delete = []
     
     changed = False
+    
+    # convert age to seconds:
+    m = re.match("^(\d+)(s|m|h|d|w)?$", params['age'].lower())
+    seconds_per_unit = {None: 1, "s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+    if m:
+        age = int(m.group(1)) * seconds_per_unit[m.group(2)]
+    else:
+        module.fail_json(age=params['age'], msg="failed to process age")
+        
+    
+    # convert size to bytes:
+    m = re.match("^(\d+)(b|k|m|g|t)?$", params['size'].lower())
+    bytes_per_unit = {None: 1, "b": 1, "k": 1024, "m": 1024**2, "g": 1024**3, "t": 1024**4}
+    if m:
+        size = int(m.group(1)) * bytes_per_unit[m.group(2)]
+    else:
+        module.fail_json(size=params['size'], msg="failed to process size")
+    
     
     if os.path.isdir(params['path']):
         for root,dirs,files in os.walk( params['path'] ):
