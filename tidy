@@ -24,7 +24,6 @@ import fnmatch
 import time
 import re
 import shutil
-import errno
 
 
 DOCUMENTATION = '''
@@ -207,23 +206,18 @@ def main():
         except Exception, e:
             if params['silent']:
                 continue
-            module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=f, msg="failed to remove file: %s " % str(e))
+            module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=f, msg="failed to process file: %s " % str(e))
         deleted_files.append(f)
     for d in dirs_to_delete:
         if os.path.exists(d):
             try:
-                if params['force']:
+                if params['force'] or len(os.listdir(d)) == 0:
                     shutil.rmtree(d)
-                else:
-                    os.rmdir(d)
+                    deleted_dirs.append(d)
             except Exception, e:
-                if e.errno == errno.ENOTEMPTY:
+                if params['silent']:
                     continue
-                else:
-                    if params['silent']:
-                        continue
-                    module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=d, msg="failed to remove directory: %s " % str(e))
-            deleted_dirs.append(d)
+                module.fail_json(deleted_files=deleted_files, deleted_dirs=deleted_dirs, path=d, msg="failed to process directory: %s " % str(e))
             
     if len(deleted_files) > 0 or len(deleted_dirs) > 0:
         changed = True
