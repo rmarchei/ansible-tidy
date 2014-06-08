@@ -31,7 +31,7 @@ You can choose seconds, minutes, hours, days, or weeks by specifying the first l
 </tr>
 <tr>
 <td>matches</td>
-<td>yes</td>
+<td>no</td>
 <td></td>
 <td><ul></ul></td>
 <td>One or more (shell type) file glob patterns, which restrict the list of files to be tidied to those whose basenames match at least one of the patterns specified.  
