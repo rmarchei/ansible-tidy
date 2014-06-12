@@ -90,8 +90,6 @@ options:
         choices: [ "atime", "mtime", "ctime ]
         description:
             - Set the mechanism for determining age. Default: atime.
-
-author: Ruggero Marchei
 '''
 
 
