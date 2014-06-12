@@ -38,6 +38,7 @@ description:
 options:
     age:
         required: false
+        default: "0"
         description:
             - Tidy files whose age is equal to or greater than the specified time. 
             You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’). Specifying 0 will remove all files.
@@ -78,6 +79,7 @@ options:
             - Silently ignore failed commands.
     size:
         required: false
+        default: "0"
         description:
             - Tidy files whose size is equal to or greater than the specified size. 
             Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.
