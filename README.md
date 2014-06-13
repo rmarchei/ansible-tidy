@@ -90,7 +90,7 @@ Size is not evaluated for directories.</td>
 # Recursively delete on /tmp files older than 4 weeks
 - tidy: path="/tmp" age="4w" recurse=yes
 
-# Recursively delete on /tmp files older than 3600 seconds and equal or greater than 1 megabyte
+# Recursively delete on /tmp files older than 4 weeks and equal or greater than 1 megabyte
 - tidy: path="/tmp" age="4w" size="1m" recurse=yes
 
 # Recursively delete on /var/tmp files and empty directories with last access time greater than 3600 seconds
