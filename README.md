@@ -79,7 +79,7 @@ Size is not evaluated for directories.</td>
 <td>no</td>
 <td>atime</td>
 <td><ul><li>atime</li><li>mtime</li><li>ctime</li></ul></td>
-<td>Set the mechanism for determining age. Default: atime.</td>
+<td>Set the mechanism for determining age. Default is atime.</td>
 </tr>
 </table>  
 

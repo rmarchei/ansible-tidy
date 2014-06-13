@@ -34,14 +34,15 @@ version_added: "1.7"
 short_description: Remove unwanted files based on specific criteria
 requirements: []
 description:
-    - Remove unwanted files based on specific criteria. Multiple criteria are AND’d together. 
+    - Remove unwanted files based on specific criteria. Multiple criteria are AND'd together. 
 options:
     age:
         required: false
         default: "0"
         description:
             - Tidy files whose age is equal to or greater than the specified time. 
-            You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., ‘1w’). Specifying 0 will remove all files.
+              You can choose seconds, minutes, hours, days, or weeks by specifying the first letter of any of those words (e.g., "1w"). 
+              Specifying 0 will remove all files.
     force:
         required: false
         default: "no"
@@ -51,8 +52,8 @@ options:
     matches:
         required: false
         description:
-            - One or more (shell type) file glob patterns, which restrict the list of files to be tidied to those whose basenames match at least one of the patterns specified.
-            Multiple patterns can be specified using a list.
+            - One or more (shell type) file glob patterns, which restrict the list of files to be tidied to those whose basenames match at least one of the patterns specified. 
+              Multiple patterns can be specified using a list.
     path:
         required: true
         aliases: [ "name" ]
@@ -70,7 +71,7 @@ options:
         choices: [ "yes", "no" ]
         description:
             - Tidy directories in addition to files; that is, remove directories whose age is older than the specified criteria. 
-            This will only remove empty directories, so all contained files must also be tidied before a directory gets removed.
+              This will only remove empty directories, so all contained files must also be tidied before a directory gets removed.
     silent:
         required: false
         default: "no"
@@ -82,14 +83,14 @@ options:
         default: "0"
         description:
             - Tidy files whose size is equal to or greater than the specified size. 
-            Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively.
-            Size is not evaluated for directories.
+              Unqualified values are in bytes, but b, k, m, g, and t can be appended to specify bytes, kilobytes, megabytes, gigabytes, and terabytes, respectively. 
+              Size is not evaluated for directories.
     timestamp:
         required: false
         default: "atime"
-        choices: [ "atime", "mtime", "ctime ]
+        choices: [ "atime", "mtime", "ctime" ]
         description:
-            - Set the mechanism for determining age. Default: atime.
+            - Set the mechanism for determining age. Default is atime.
 '''
 
 
