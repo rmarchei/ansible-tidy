@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # (c) 2014, Ruggero Marchei <ruggero.marchei@daemonzone.net>
